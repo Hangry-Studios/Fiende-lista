@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register över Oförrätter</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --accent: #ff4d4d;
+            --text: #e0e0e0;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; max-width: 900px; margin: auto; }
+        h2 { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        
+        .input-section { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #333; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        input, select, button { padding: 12px; border: 1px solid #444; background: #252525; color: white; border-radius: 6px; font-size: 14px; }
+        input:focus { border-color: var(--accent); outline: none; }
+        
+        .full-width { grid-column: span 2; }
+        .pw-field { border: 1px solid #555; background: #1a1a1a; margin-top: 10px; }
+        
+        button { cursor: pointer; background: var(--accent); color: #000; font-weight: bold; border: none; transition: 0.3s; margin-top: 10px; text-transform: uppercase; }
+        button:hover { background: #ff6666; transform: scale(1.02); }
+        
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #333; }
+        th { background-color: #252525; color: var(--accent); font-size: 0.85em; letter-spacing: 1px; }
+        tr:last-child td { border-bottom: none; }
+        
+        .severity-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .Hög { background: rgba(255, 77, 77, 0.2); color: #ff4d4d; }
+        .Medium { background: rgba(240, 173, 78, 0.2); color: #f0ad4e; }
+        .Låg { background: rgba(92, 184, 92, 0.2); color: #5cb85c; }
+    </style>
+</head>
+<body>
+
+    <h2>📓 REGISTER ÖVER OFÖRRÄTTER</h2>
+
+    <div class="input-section">
+        <div class="grid-inputs">
+            <input type="text" id="name" placeholder="Namn på individ">
+            <input type="date" id="date">
+            <input type="text" id="wrongdoing" class="full-width" placeholder="Beskrivning av felaktigheten">
+            <select id="severity">
+                <option value="Låg">Låg allvarlighetsgrad</option>
+                <option value="Medium">Medium allvarlighetsgrad</option>
+                <option value="Hög">Hög allvarlighetsgrad</option>
+            </select>
+            <input type="password" id="password" class="pw-field" placeholder="Verifieringsnyckel (Lösenord)">
+        </div>
+        <button onclick="saveToCloud()" style="width: 100%;">Spara i databasen</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Namn</th>
+                <th>Datum</th>
+                <th>Felaktighet</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="list-body"></tbody>
+    </table>
+
+    <script>
+        // --- DIN KONFIGURATION ---
+        const SUPABASE_URL = 'https://jctdhvjpcbkaognwxyof.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjdGRodmpwY2JrYW9nbnd4eW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjM5NTcsImV4cCI6MjA5NTYzOTk1N30.w0yA6I-AuGDy6jlIZ1KnELY4FmzECFMb3ySY8EFaSOY';
+        // -------------------------
+
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function fetchEnemies() {
+            const { data, error } = await _supabase
+                .from('enemies')
+                .select('*')
+                .order('date', { ascending: false });
+
+            if (error) return console.error(error);
+            
+            const tbody = document.getElementById('list-body');
+            tbody.innerHTML = data.map(e => `
+                <tr>
+                    <td><strong>${e.name}</strong></td>
+                    <td>${e.date}</td>
+                    <td>${e.wrongdoing}</td>
+                    <td><span class="severity-badge ${e.severity}">${e.severity}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function saveToCloud() {
+            const name = document.getElementById('name').value;
+            const date = document.getElementById('date').value;
+            const wrongdoing = document.getElementById('wrongdoing').value;
+            const severity = document.getElementById('severity').value;
+            const password = document.getElementById('password').value;
+
+            if (!name || !date || !wrongdoing || !password) {
+                alert("Alla fält måste fyllas i.");
+                return;
+            }
+
+            // Anropar SQL-funktionen vi skapade tidigare
+            const { error } = await _supabase.rpc('add_enemy_with_password', {
+                p_name: name,
+                p_date: date,
+                p_wrongdoing: wrongdoing,
+                p_severity: severity,
+                p_password: password
+            });
+
+            if (error) {
+                alert("Nekat: " + error.message);
+            } else {
+                document.getElementById('name').value = '';
+                document.getElementById('wrongdoing').value = '';
+                document.getElementById('password').value = '';
+                fetchEnemies();
+            }
+        }
+
+        fetchEnemies();
+    </script>
+</body>
+</html>
