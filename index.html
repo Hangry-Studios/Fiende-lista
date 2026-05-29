@@ -7,66 +7,392 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg: #121212;
-            --card: #1e1e1e;
+            --bg: #0b0c10;
+            --card: #15161e;
+            --card-border: #262936;
             --accent: #ff4d4d;
-            --text: #e0e0e0;
+            --accent-hover: #ff3333;
+            --text-main: #f0f2f5;
+            --text-muted: #8c92a6;
+            --input-bg: #1f212a;
+            --input-border: #313545;
         }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; max-width: 900px; margin: auto; }
-        h2 { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            padding: 40px 20px; 
+            max-width: 900px; 
+            margin: auto;
+            line-height: 1.5;
+        }
+
+        /* Header Layout */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
         
-        .input-section { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #333; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        input, select, button { padding: 12px; border: 1px solid #444; background: #252525; color: white; border-radius: 6px; font-size: 14px; }
-        input:focus { border-color: var(--accent); outline: none; }
+        .header h2 { 
+            color: var(--text-main); 
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Knappar */
+        .btn-primary {
+            background: var(--accent);
+            color: #ffffff;
+            font-weight: 600;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 77, 77, 0.3);
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            background: var(--card);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-icon svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.5s ease;
+        }
+
+        .btn-icon.rotating svg {
+            transform: rotate(360deg);
+        }
+
+        /* Popup / Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(8, 9, 12, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            padding: 30px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: var(--accent);
+        }
+
+        /* Inputs */
+        .grid-inputs { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+        }
+        
+        input, select { 
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 16px; 
+            border: 1px solid var(--input-border); 
+            background: var(--input-bg); 
+            color: white; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            transition: all 0.2s;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        
+        input:focus, select:focus { 
+            border-color: var(--accent); 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.15);
+        }
         
         .full-width { grid-column: span 2; }
-        .pw-field { border: 1px solid #555; background: #1a1a1a; margin-top: 10px; }
+        .pw-field { border: 1px solid var(--input-border); }
+
+        .btn-submit {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+        }
         
-        button { cursor: pointer; background: var(--accent); color: #000; font-weight: bold; border: none; transition: 0.3s; margin-top: 10px; text-transform: uppercase; }
-        button:hover { background: #ff6666; transform: scale(1.02); }
-        
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 8px; overflow: hidden; }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #333; }
-        th { background-color: #252525; color: var(--accent); font-size: 0.85em; letter-spacing: 1px; }
+        /* Tabell */
+        .table-container {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+
+        th, td { 
+            padding: 16px 20px; 
+            text-align: left; 
+        }
+
+        th { 
+            background-color: rgba(255, 255, 255, 0.02); 
+            color: var(--text-muted); 
+            font-size: 11px; 
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px; 
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 14px;
+        }
+
         tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.01); }
         
-        .severity-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .Hög { background: rgba(255, 77, 77, 0.2); color: #ff4d4d; }
-        .Medium { background: rgba(240, 173, 78, 0.2); color: #f0ad4e; }
-        .Låg { background: rgba(92, 184, 92, 0.2); color: #5cb85c; }
+        td strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* Badges */
+        .severity-badge { 
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .Hög { 
+            background: rgba(255, 77, 77, 0.1); 
+            color: #ff4d4d; 
+            border: 1px solid rgba(255, 77, 77, 0.2);
+        }
+
+        .Medium { 
+            background: rgba(240, 173, 78, 0.1); 
+            color: #f0ad4e; 
+            border: 1px solid rgba(240, 173, 78, 0.2);
+        }
+
+        .Låg { 
+            background: rgba(92, 184, 92, 0.1); 
+            color: #5cb85c; 
+            border: 1px solid rgba(92, 184, 92, 0.2);
+        }
+
+        /* Toast Popup */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1b23;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 14px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobil-anpassning */
+        @media (max-width: 580px) {
+            .grid-inputs {
+                grid-template-columns: 1fr;
+            }
+            .full-width {
+                grid-column: span 1;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <h2>📓 REGISTER ÖVER OFÖRRÄTTER</h2>
-
-    <div class="input-section">
-        <div class="grid-inputs">
-            <input type="text" id="name" placeholder="Namn på individ">
-            <input type="date" id="date">
-            <input type="text" id="wrongdoing" class="full-width" placeholder="Beskrivning av felaktigheten">
-            <select id="severity">
-                <option value="Låg">Låg allvarlighetsgrad</option>
-                <option value="Medium">Medium allvarlighetsgrad</option>
-                <option value="Hög">Hög allvarlighetsgrad</option>
-            </select>
-            <input type="password" id="password" class="pw-field" placeholder="Verifieringsnyckel (Lösenord)">
+    <header class="header">
+        <h2>📓 REGISTER ÖVER OFÖRRÄTTER</h2>
+        <div class="header-actions">
+            <!-- Diskret uppdateringsknapp -->
+            <button onclick="triggerRefresh()" class="btn-icon" title="Uppdatera listan">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+            </button>
+            <button onclick="toggleModal(true)" class="btn-primary">+ Registrera Oförrätt</button>
         </div>
-        <button onclick="saveToCloud()" style="width: 100%;">Spara i databasen</button>
+    </header>
+
+    <!-- Popup / Modal för registrering -->
+    <div id="inputModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrera Ny Oförrätt</h3>
+                <span class="close-btn" onclick="toggleModal(false)">&times;</span>
+            </div>
+            <div class="grid-inputs">
+                <input type="text" id="name" placeholder="Namn på individ">
+                <input type="date" id="date">
+                <input type="text" id="wrongdoing" class="full-width" placeholder="Beskrivning av felaktigheten">
+                <select id="severity">
+                    <option value="Låg">Låg allvarlighetsgrad</option>
+                    <option value="Medium">Medium allvarlighetsgrad</option>
+                    <option value="Hög">Hög allvarlighetsgrad</option>
+                </select>
+                <input type="password" id="password" class="pw-field" placeholder="Verifieringsnyckel (Lösenord)">
+            </div>
+            <button onclick="saveToCloud()" class="btn-submit">Spara i databasen</button>
+        </div>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Namn</th>
-                <th>Datum</th>
-                <th>Felaktighet</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="list-body"></tbody>
-    </table>
+    <!-- Tabell Container -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Namn</th>
+                    <th>Datum</th>
+                    <th>Felaktighet</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="list-body"></tbody>
+        </table>
+    </div>
+
+    <!-- Toast-notis popup -->
+    <div id="toast" class="toast">Listan har uppdaterats!</div>
 
     <script>
         // --- DIN KONFIGURATION ---
@@ -75,6 +401,45 @@
         // -------------------------
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Öppna/stäng modalen
+        function toggleModal(show) {
+            const modal = document.getElementById('inputModal');
+            if (show) {
+                modal.classList.add('active');
+            } else {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Stäng modalen om användaren klickar utanför
+        window.onclick = function(event) {
+            const modal = document.getElementById('inputModal');
+            if (event.target === modal) {
+                toggleModal(false);
+            }
+        }
+
+        // Visa en diskret bekräftelse-popup (toast)
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Trigger för manuell uppdatering
+        async function triggerRefresh() {
+            const btn = document.querySelector('.btn-icon');
+            btn.classList.add('rotating');
+            await fetchEnemies();
+            setTimeout(() => {
+                btn.classList.remove('rotating');
+                showToast("Listan har uppdaterats!");
+            }, 500);
+        }
 
         async function fetchEnemies() {
             const { data, error } = await _supabase
@@ -122,7 +487,9 @@
                 document.getElementById('name').value = '';
                 document.getElementById('wrongdoing').value = '';
                 document.getElementById('password').value = '';
-                fetchEnemies();
+                toggleModal(false); // Stänger fönstret
+                await fetchEnemies();
+                showToast("Oförrätt sparad i databasen!"); // Visar toast
             }
         }
 
