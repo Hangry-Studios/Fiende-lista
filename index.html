@@ -170,6 +170,30 @@
             color: var(--accent);
         }
 
+        /* Info Popup Text-styling */
+        .info-body {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .info-body h4 {
+            color: var(--text-main);
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-size: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 4px;
+        }
+
+        .info-body p {
+            margin-bottom: 12px;
+        }
+        
+        .info-body p strong {
+            color: #fff;
+        }
+
         /* Inputs */
         .grid-inputs { 
             display: grid; 
@@ -248,6 +272,26 @@
             text-transform: uppercase;
             letter-spacing: 1px; 
             border-bottom: 1px solid var(--card-border);
+        }
+
+        /* Sorterbara kolumner */
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s, background-color 0.2s;
+        }
+
+        th.sortable:hover {
+            color: var(--text-main);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .sort-icon {
+            display: inline-block;
+            margin-left: 6px;
+            font-size: 10px;
+            color: var(--accent);
+            vertical-align: middle;
         }
 
         td {
@@ -343,6 +387,14 @@
     <header class="header">
         <h2>📓 REGISTER ÖVER OFÖRRÄTTER</h2>
         <div class="header-actions">
+            <!-- Diskret info-knapp -->
+            <button onclick="toggleInfoModal(true)" class="btn-icon" title="Information">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+            </button>
             <!-- Diskret uppdateringsknapp -->
             <button onclick="triggerRefresh()" class="btn-icon" title="Uppdatera listan">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -376,15 +428,49 @@
         </div>
     </div>
 
+    <!-- Popup / Modal för Information -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: var(--text-main);">📓 Om registret</h3>
+                <span class="close-btn" onclick="toggleInfoModal(false)">&times;</span>
+            </div>
+            <div class="info-body">
+                <p>
+                    Detta är ett offentligt verktyg för att dokumentera och strukturera händelser, felaktigheter och incidenter för framtida referens.
+                </p>
+                
+                <h4>⚙️ Funktioner</h4>
+                <p>
+                    <strong>Låst för ändringar:</strong> Listan är helt offentlig att läsa, men endast ägaren (jag) kan uppdatera den.
+                </p>
+                <p>
+                    <strong>Sortering:</strong> Klicka på rubrikerna (Namn, Datum, Status) för att sortera listan.
+                </p>
+
+                <h4>📊 Statusnivåer</h4>
+                <p>
+                    🟥 <strong>Hög:</strong> Allvarliga oförrätter med stor inverkan.
+                </p>
+                <p>
+                    🟨 <strong>Medium:</strong> Tydliga felsteg utanför det acceptabla.
+                </p>
+                <p>
+                    🟩 <strong>Låg:</strong> Mindre incidenter värda att notera.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Tabell Container -->
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>Namn</th>
-                    <th>Datum</th>
+                    <th class="sortable" onclick="sortData('name')">Namn <span id="sort-icon-name" class="sort-icon"></span></th>
+                    <th class="sortable" onclick="sortData('date')">Datum <span id="sort-icon-date" class="sort-icon">▼</span></th>
                     <th>Felaktighet</th>
-                    <th>Status</th>
+                    <th class="sortable" onclick="sortData('severity')">Status <span id="sort-icon-severity" class="sort-icon"></span></th>
                 </tr>
             </thead>
             <tbody id="list-body"></tbody>
@@ -396,13 +482,20 @@
 
     <script>
         // --- DIN KONFIGURATION ---
-        const SUPABASE_URL = 'https://jctdhvjpcbkaognwxyof.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjdGRodmpwY2JrYW9nbnd4eW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjM5NTcsImV4cCI6MjA5NTYzOTk1N30.w0yA6I-AuGDy6jlIZ1KnELY4FmzECFMb3ySY8EFaSOY';
+        const SUPABASE_URL = 'DIT_PROJEKT_URL_HÄR';
+        const SUPABASE_KEY = 'DIN_ANON_KEY_HÄR';
         // -------------------------
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Öppna/stäng modalen
+        // Global variabel för att spara datan lokalt för snabb sortering
+        let enemiesData = [];
+        let currentSort = { column: 'date', direction: 'desc' }; // Förvalt sorterat på datum fallande
+
+        // Prioriteringsordning för status-sortering
+        const severityOrder = { 'Hög': 3, 'Medium': 2, 'Låg': 1 };
+
+        // Öppna/stäng registrerings-modalen
         function toggleModal(show) {
             const modal = document.getElementById('inputModal');
             if (show) {
@@ -412,11 +505,25 @@
             }
         }
 
-        // Stäng modalen om användaren klickar utanför
+        // Öppna/stäng info-modalen
+        function toggleInfoModal(show) {
+            const modal = document.getElementById('infoModal');
+            if (show) {
+                modal.classList.add('active');
+            } else {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Stäng modalerna om användaren klickar utanför fönstret
         window.onclick = function(event) {
-            const modal = document.getElementById('inputModal');
-            if (event.target === modal) {
+            const inputModal = document.getElementById('inputModal');
+            const infoModal = document.getElementById('infoModal');
+            if (event.target === inputModal) {
                 toggleModal(false);
+            }
+            if (event.target === infoModal) {
+                toggleInfoModal(false);
             }
         }
 
@@ -432,13 +539,77 @@
 
         // Trigger för manuell uppdatering
         async function triggerRefresh() {
-            const btn = document.querySelector('.btn-icon');
+            const btn = document.querySelectorAll('.btn-icon')[1]; // Väljer uppdateringsknappen (index 1)
             btn.classList.add('rotating');
             await fetchEnemies();
             setTimeout(() => {
                 btn.classList.remove('rotating');
                 showToast("Listan har uppdaterats!");
             }, 500);
+        }
+
+        // Sorteringslogik
+        function sortData(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            applySort();
+            renderTable();
+        }
+
+        // Applicerar sortering på vår lokala array
+        function applySort() {
+            const { column, direction } = currentSort;
+            
+            enemiesData.sort((a, b) => {
+                let valA = a[column] || '';
+                let valB = b[column] || '';
+
+                if (column === 'severity') {
+                    valA = severityOrder[a.severity] || 0;
+                    valB = severityOrder[b.severity] || 0;
+                }
+
+                if (typeof valA === 'string' && typeof valB === 'string') {
+                    return direction === 'asc' 
+                        ? valA.localeCompare(valB, 'sv') 
+                        : valB.localeCompare(valA, 'sv');
+                }
+
+                if (valA < valB) return direction === 'asc' ? -1 : 1;
+                if (valA > valB) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        // Uppdaterar pilarna i tabellens rubriker
+        function updateSortIcons() {
+            document.getElementById('sort-icon-name').textContent = '';
+            document.getElementById('sort-icon-date').textContent = '';
+            document.getElementById('sort-icon-severity').textContent = '';
+
+            const activeIcon = document.getElementById(`sort-icon-${currentSort.column}`);
+            if (activeIcon) {
+                activeIcon.textContent = currentSort.direction === 'asc' ? '▲' : '▼';
+            }
+        }
+
+        // Renderar ut tabellen från den sparade datan
+        function renderTable() {
+            const tbody = document.getElementById('list-body');
+            tbody.innerHTML = enemiesData.map(e => `
+                <tr>
+                    <td><strong>${e.name}</strong></td>
+                    <td>${e.date}</td>
+                    <td>${e.wrongdoing}</td>
+                    <td><span class="severity-badge ${e.severity}">${e.severity}</span></td>
+                </tr>
+            `).join('');
+            
+            updateSortIcons();
         }
 
         async function fetchEnemies() {
@@ -449,15 +620,9 @@
 
             if (error) return console.error(error);
             
-            const tbody = document.getElementById('list-body');
-            tbody.innerHTML = data.map(e => `
-                <tr>
-                    <td><strong>${e.name}</strong></td>
-                    <td>${e.date}</td>
-                    <td>${e.wrongdoing}</td>
-                    <td><span class="severity-badge ${e.severity}">${e.severity}</span></td>
-                </tr>
-            `).join('');
+            enemiesData = data;
+            applySort();
+            renderTable();
         }
 
         async function saveToCloud() {
@@ -472,7 +637,6 @@
                 return;
             }
 
-            // Anropar SQL-funktionen vi skapade tidigare
             const { error } = await _supabase.rpc('add_enemy_with_password', {
                 p_name: name,
                 p_date: date,
@@ -487,9 +651,9 @@
                 document.getElementById('name').value = '';
                 document.getElementById('wrongdoing').value = '';
                 document.getElementById('password').value = '';
-                toggleModal(false); // Stänger fönstret
+                toggleModal(false);
                 await fetchEnemies();
-                showToast("Oförrätt sparad i databasen!"); // Visar toast
+                showToast("Oförrätt sparad i databasen!");
             }
         }
 
