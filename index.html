@@ -101,6 +101,45 @@
             transform: rotate(360deg);
         }
 
+        /* Sökfält */
+        .search-wrapper {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .search-wrapper svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        #searchInput {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 16px 12px 42px;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        #searchInput::placeholder {
+            color: var(--text-muted);
+        }
+
+        #searchInput:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.15);
+        }
+
         /* Popup / Modal */
         .modal {
             position: fixed;
@@ -307,6 +346,96 @@
             font-weight: 600;
         }
 
+        /* Radera-knapp i tabell */
+        .btn-delete {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+            opacity: 0.4;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 77, 77, 0.1);
+            border-color: rgba(255, 77, 77, 0.3);
+            color: var(--accent);
+            opacity: 1;
+        }
+
+        .btn-delete svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        tr:hover .btn-delete {
+            opacity: 0.7;
+        }
+
+        /* Radera-modal specifika stilar */
+        #deleteModal .modal-header h3 {
+            color: var(--accent);
+        }
+
+        .delete-info {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .delete-info strong {
+            color: var(--text-main);
+        }
+
+        .delete-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255,255,255,0.04);
+            color: var(--text-main);
+        }
+
+        .btn-delete-confirm {
+            flex: 1;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-delete-confirm:hover {
+            background: var(--accent-hover);
+        }
+
         /* Badges */
         .severity-badge { 
             display: inline-flex;
@@ -319,22 +448,57 @@
             letter-spacing: 0.5px;
         }
 
-        .Hög { 
-            background: rgba(255, 77, 77, 0.1); 
-            color: #ff4d4d; 
-            border: 1px solid rgba(255, 77, 77, 0.2);
+        /* Låg */
+        .Låg { 
+            background: rgba(92, 184, 92, 0.1); 
+            color: #5cb85c; 
+            border: 1px solid rgba(92, 184, 92, 0.2);
         }
 
+        /* Medium */
         .Medium { 
             background: rgba(240, 173, 78, 0.1); 
             color: #f0ad4e; 
             border: 1px solid rgba(240, 173, 78, 0.2);
         }
 
-        .Låg { 
-            background: rgba(92, 184, 92, 0.1); 
-            color: #5cb85c; 
-            border: 1px solid rgba(92, 184, 92, 0.2);
+        /* Hög */
+        .Hög { 
+            background: rgba(255, 77, 77, 0.1); 
+            color: #ff4d4d; 
+            border: 1px solid rgba(255, 77, 77, 0.2);
+        }
+
+        /* Högre – sticker ut mer, varm orange/röd med glow */
+        .Högre {
+            background: rgba(255, 110, 30, 0.15);
+            color: #ff6e1e;
+            border: 1px solid rgba(255, 110, 30, 0.4);
+            box-shadow: 0 0 8px rgba(255, 110, 30, 0.2);
+        }
+
+        /* Högst – maximal visuell vikt, pulsande glow-animation */
+        .Högst {
+            background: rgba(255, 0, 50, 0.15);
+            color: #ff2244;
+            border: 1px solid rgba(255, 34, 68, 0.5);
+            box-shadow: 0 0 12px rgba(255, 0, 50, 0.3);
+            animation: pulse-badge 2s ease-in-out infinite;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { box-shadow: 0 0 8px rgba(255, 0, 50, 0.3); }
+            50%       { box-shadow: 0 0 18px rgba(255, 0, 50, 0.6); }
+        }
+
+        /* Tom-tabell meddelande */
+        .empty-message {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-muted);
+            font-size: 14px;
         }
 
         /* Toast Popup */
@@ -387,7 +551,6 @@
     <header class="header">
         <h2>📓 REGISTER ÖVER OFÖRRÄTTER</h2>
         <div class="header-actions">
-            <!-- Diskret info-knapp -->
             <button onclick="toggleInfoModal(true)" class="btn-icon" title="Information">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -395,7 +558,6 @@
                     <line x1="12" y1="8" x2="12.01" y2="8"></line>
                 </svg>
             </button>
-            <!-- Diskret uppdateringsknapp -->
             <button onclick="triggerRefresh()" class="btn-icon" title="Uppdatera listan">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="23 4 23 10 17 10"></polyline>
@@ -405,6 +567,15 @@
             <button onclick="toggleModal(true)" class="btn-primary">+ Registrera Oförrätt</button>
         </div>
     </header>
+
+    <!-- Sökfält -->
+    <div class="search-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Sök på namn eller beskrivning…" oninput="renderTable()">
+    </div>
 
     <!-- Popup / Modal för registrering -->
     <div id="inputModal" class="modal">
@@ -421,6 +592,8 @@
                     <option value="Låg">Låg allvarlighetsgrad</option>
                     <option value="Medium">Medium allvarlighetsgrad</option>
                     <option value="Hög">Hög allvarlighetsgrad</option>
+                    <option value="Högre">Högre allvarlighetsgrad</option>
+                    <option value="Högst">Högst allvarlighetsgrad, enbart för nödfall</option>
                 </select>
                 <input type="password" id="password" class="pw-field" placeholder="Verifieringsnyckel (Lösenord)">
             </div>
@@ -447,17 +620,32 @@
                 <p>
                     <strong>Sortering:</strong> Klicka på rubrikerna (Namn, Datum, Status) för att sortera listan.
                 </p>
+                <p>
+                    <strong>Sökning:</strong> Filtrera listan i realtid via sökfältet ovanför tabellen.
+                </p>
 
                 <h4>📊 Statusnivåer</h4>
-                <p>
-                    🟥 <strong>Hög:</strong> Allvarliga oförrätter med stor inverkan.
-                </p>
-                <p>
-                    🟨 <strong>Medium:</strong> Tydliga felsteg utanför det acceptabla.
-                </p>
-                <p>
-                    🟩 <strong>Låg:</strong> Mindre incidenter värda att notera.
-                </p>
+                <p>🟩 <strong>Låg:</strong> Mindre incidenter värda att notera.</p>
+                <p>🟨 <strong>Medium:</strong> Tydliga felsteg utanför det acceptabla.</p>
+                <p>🟥 <strong>Hög:</strong> Allvarliga oförrätter med stor inverkan.</p>
+                <p>🔴 <strong>Högre:</strong> Grav händelse med långtgående konsekvenser.</p>
+                <p>💀 <strong>Högst:</strong> Extremfall. Enbart för nödfall.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup / Modal för radering -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🗑 Radera post</h3>
+                <span class="close-btn" onclick="toggleDeleteModal(false)">&times;</span>
+            </div>
+            <div class="delete-info" id="deleteInfo"></div>
+            <input type="password" id="deletePassword" class="pw-field" placeholder="Verifieringsnyckel (Lösenord)" style="margin-top: 4px;">
+            <div class="delete-actions">
+                <button onclick="toggleDeleteModal(false)" class="btn-cancel">Avbryt</button>
+                <button onclick="confirmDelete()" class="btn-delete-confirm">Radera</button>
             </div>
         </div>
     </div>
@@ -471,6 +659,7 @@
                     <th class="sortable" onclick="sortData('date')">Datum <span id="sort-icon-date" class="sort-icon">▼</span></th>
                     <th>Felaktighet</th>
                     <th class="sortable" onclick="sortData('severity')">Status <span id="sort-icon-severity" class="sort-icon"></span></th>
+                    <th style="width:48px;"></th>
                 </tr>
             </thead>
             <tbody id="list-body"></tbody>
@@ -481,65 +670,57 @@
     <div id="toast" class="toast">Listan har uppdaterats!</div>
 
     <script>
-        // --- DIN KONFIGURATION ---
         const SUPABASE_URL = 'https://jctdhvjpcbkaognwxyof.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpjdGRodmpwY2JrYW9nbnd4eW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNjM5NTcsImV4cCI6MjA5NTYzOTk1N30.w0yA6I-AuGDy6jlIZ1KnELY4FmzECFMb3ySY8EFaSOY';
-        // -------------------------
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Global variabel för att spara datan lokalt för snabb sortering
         let enemiesData = [];
-        let currentSort = { column: 'date', direction: 'desc' }; // Förvalt sorterat på datum fallande
+        let currentSort = { column: 'date', direction: 'desc' };
+        let pendingDeleteId = null;
 
-        // Prioriteringsordning för status-sortering
-        const severityOrder = { 'Hög': 3, 'Medium': 2, 'Låg': 1 };
+        const severityOrder = { 'Högst': 5, 'Högre': 4, 'Hög': 3, 'Medium': 2, 'Låg': 1 };
 
-        // Öppna/stäng registrerings-modalen
+        // --- Modals ---
+
         function toggleModal(show) {
-            const modal = document.getElementById('inputModal');
-            if (show) {
-                modal.classList.add('active');
-            } else {
-                modal.classList.remove('active');
-            }
+            document.getElementById('inputModal').classList.toggle('active', show);
         }
 
-        // Öppna/stäng info-modalen
         function toggleInfoModal(show) {
-            const modal = document.getElementById('infoModal');
+            document.getElementById('infoModal').classList.toggle('active', show);
+        }
+
+        function toggleDeleteModal(show, id = null, name = '', wrongdoing = '') {
+            pendingDeleteId = show ? id : null;
             if (show) {
-                modal.classList.add('active');
-            } else {
-                modal.classList.remove('active');
+                document.getElementById('deleteInfo').innerHTML =
+                    `Vill du permanent radera posten för <strong>${name}</strong>?<br><span style="font-size:13px;opacity:0.7;">${wrongdoing}</span>`;
+                document.getElementById('deletePassword').value = '';
             }
+            document.getElementById('deleteModal').classList.toggle('active', show);
         }
 
-        // Stäng modalerna om användaren klickar utanför fönstret
         window.onclick = function(event) {
-            const inputModal = document.getElementById('inputModal');
-            const infoModal = document.getElementById('infoModal');
-            if (event.target === inputModal) {
-                toggleModal(false);
-            }
-            if (event.target === infoModal) {
-                toggleInfoModal(false);
-            }
+            ['inputModal', 'infoModal', 'deleteModal'].forEach(id => {
+                const modal = document.getElementById(id);
+                if (event.target === modal) modal.classList.remove('active');
+            });
         }
 
-        // Visa en diskret bekräftelse-popup (toast)
+        // --- Toast ---
+
         function showToast(message) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Trigger för manuell uppdatering
+        // --- Refresh ---
+
         async function triggerRefresh() {
-            const btn = document.querySelectorAll('.btn-icon')[1]; // Väljer uppdateringsknappen (index 1)
+            const btn = document.querySelectorAll('.btn-icon')[1];
             btn.classList.add('rotating');
             await fetchEnemies();
             setTimeout(() => {
@@ -548,7 +729,8 @@
             }, 500);
         }
 
-        // Sorteringslogik
+        // --- Sortering ---
+
         function sortData(column) {
             if (currentSort.column === column) {
                 currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
@@ -560,57 +742,84 @@
             renderTable();
         }
 
-        // Applicerar sortering på vår lokala array
         function applySort() {
             const { column, direction } = currentSort;
-            
             enemiesData.sort((a, b) => {
-                let valA = a[column] || '';
-                let valB = b[column] || '';
-
                 if (column === 'severity') {
-                    valA = severityOrder[a.severity] || 0;
-                    valB = severityOrder[b.severity] || 0;
+                    const valA = severityOrder[a.severity] || 0;
+                    const valB = severityOrder[b.severity] || 0;
+                    return direction === 'asc' ? valA - valB : valB - valA;
                 }
-
+                const valA = a[column] || '';
+                const valB = b[column] || '';
                 if (typeof valA === 'string' && typeof valB === 'string') {
-                    return direction === 'asc' 
-                        ? valA.localeCompare(valB, 'sv') 
+                    return direction === 'asc'
+                        ? valA.localeCompare(valB, 'sv')
                         : valB.localeCompare(valA, 'sv');
                 }
-
                 if (valA < valB) return direction === 'asc' ? -1 : 1;
                 if (valA > valB) return direction === 'asc' ? 1 : -1;
                 return 0;
             });
         }
 
-        // Uppdaterar pilarna i tabellens rubriker
         function updateSortIcons() {
-            document.getElementById('sort-icon-name').textContent = '';
-            document.getElementById('sort-icon-date').textContent = '';
-            document.getElementById('sort-icon-severity').textContent = '';
-
+            ['name', 'date', 'severity'].forEach(col => {
+                document.getElementById(`sort-icon-${col}`).textContent = '';
+            });
             const activeIcon = document.getElementById(`sort-icon-${currentSort.column}`);
-            if (activeIcon) {
-                activeIcon.textContent = currentSort.direction === 'asc' ? '▲' : '▼';
-            }
+            if (activeIcon) activeIcon.textContent = currentSort.direction === 'asc' ? '▲' : '▼';
         }
 
-        // Renderar ut tabellen från den sparade datan
+        // --- Render ---
+
         function renderTable() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const filtered = query
+                ? enemiesData.filter(e =>
+                    (e.name || '').toLowerCase().includes(query) ||
+                    (e.wrongdoing || '').toLowerCase().includes(query)
+                  )
+                : enemiesData;
+
             const tbody = document.getElementById('list-body');
-            tbody.innerHTML = enemiesData.map(e => `
-                <tr>
-                    <td><strong>${e.name}</strong></td>
-                    <td>${e.date}</td>
-                    <td>${e.wrongdoing}</td>
-                    <td><span class="severity-badge ${e.severity}">${e.severity}</span></td>
-                </tr>
-            `).join('');
-            
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="empty-message">Inga poster matchar sökningen.</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(e => `
+                    <tr>
+                        <td><strong>${e.name}</strong></td>
+                        <td>${e.date}</td>
+                        <td>${e.wrongdoing}</td>
+                        <td><span class="severity-badge ${e.severity}">${e.severity}</span></td>
+                        <td>
+                            <button
+                                class="btn-delete"
+                                title="Radera post"
+                                onclick="toggleDeleteModal(true, '${e.id}', '${escapeAttr(e.name)}', '${escapeAttr(e.wrongdoing)}')"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                                    <path d="M10 11v6"></path>
+                                    <path d="M14 11v6"></path>
+                                    <path d="M9 6V4h6v2"></path>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
             updateSortIcons();
         }
+
+        function escapeAttr(str) {
+            return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        // --- Fetch ---
 
         async function fetchEnemies() {
             const { data, error } = await _supabase
@@ -619,11 +828,12 @@
                 .order('date', { ascending: false });
 
             if (error) return console.error(error);
-            
             enemiesData = data;
             applySort();
             renderTable();
         }
+
+        // --- Spara ---
 
         async function saveToCloud() {
             const name = document.getElementById('name').value;
@@ -654,6 +864,30 @@
                 toggleModal(false);
                 await fetchEnemies();
                 showToast("Oförrätt sparad i databasen!");
+            }
+        }
+
+        // --- Radera ---
+
+        async function confirmDelete() {
+            const password = document.getElementById('deletePassword').value;
+            if (!password) {
+                alert("Ange verifieringsnyckel.");
+                return;
+            }
+            if (!pendingDeleteId) return;
+
+            const { error } = await _supabase.rpc('delete_enemy_with_password', {
+                p_id: pendingDeleteId,
+                p_password: password
+            });
+
+            if (error) {
+                alert("Nekat: " + error.message);
+            } else {
+                toggleDeleteModal(false);
+                await fetchEnemies();
+                showToast("Post raderad.");
             }
         }
 
